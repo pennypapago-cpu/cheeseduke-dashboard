@@ -3,6 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>起士公爵 官網 vs 團媽 業績儀表板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: #f0f2f5; color: #333; padding: 20px; max-width: 960px; margin: 0 auto; }
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
+  .header .subtitle { font-size: 13px; color: #888; }
+  .date-picker { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+  .date-btn { padding: 8px 18px; border: 2px solid #ddd; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #666; transition: all 0.2s; }
+  .date-btn:hover { border-color: #aaa; color: #333; }
+  .date-btn.active { border-color: #2196F3; background: #2196F3; color: #fff; font-weight: 700; }
+  .date-btn.today { position: relative; }
+  .date-btn.today::after { content: '今日'; position: absolute; top: -8px; right: -6px; background: #ff5722; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 700; }
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
+  .kpi-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .kpi-card .value { font-size: 26px; font-weight: 700; }
+  .kpi-card .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+  .kpi-card.shop { border-top: 4px solid #4CAF50; }
+  .kpi-card.team { border-top: 4px solid #FF9800; }
+  .kpi-card.total { border-top: 4px solid #2196F3; }
+  .section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .section h2 { font-size: 16px; margin-bottom: 14px; color: #1a1a2e; }
+  .chart-container { position: relative; height: 300px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f8f9fa; padding: 8px 10px; text-align: right; font-weight: 600; color: #555; border-bottom: 2px solid #e9ecef; }
+  th:first-child { text-align: left; }
+  td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
+  td:first-child { text-align: left; font-weight: 500; }
+  tr:hover td { background: #f8f9fa; }
+  tr.selected-day td { background: #e3f2fd; font-weight: 600; }
+  tfoot td { font-weight: 700; background: #f0f7ff; }
+  .view-label { text-align: center; font-size: 13px; color: #2196F3; font-weight: 600; margin-bottom: 16px; }
+  .note { font-size: 11px; color: #999; text-align: center; margin-top: 16px; }
+  @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } .chart-container { height: 220px; } .date-btn { padding: 6px 12px; font-size: 12px; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>起士公爵 官網 vs 團媽 業績儀表板</h1>
+  <div class="subtitle">資料來源：SHOPLINE 後台 ｜ 最後更新：2026/3/24 16:00</div>
+</div>
+<div class="date-picker" id="datePicker"></div>
+<div class="view-label" id="viewLabel"></div>
+<div class="kpi-row">
+  <div class="kpi-card total"><div class="label">合計營業額</div><div class="value" style="color:#2196F3;" id="kpiTotal">-</div><div class="sub" id="kpiTotalSub">-</div></div>
+  <div class="kpi-card shop"><div class="label">官網 (前台購物網站)</div><div class="value" style="color:#4CAF50;" id="kpiShop">-</div><div class="sub" id="kpiShopSub">-</div></div>
+  <div class="kpi-card team"><div class="label">團媽獨立賣場</div><div class="value" style="color:#FF9800;" id="kpiTeam">-</div><div class="sub" id="kpiTeamSub">-</div></div>
+</div>
+<div class="section"><h2>官網營業額趨勢</h2><div class="chart-container"><canvas id="revTrend"></canvas></div></div>
+<div class="section"><h2>官網訂單數趨勢</h2><div class="chart-container"><canvas id="countTrend"></canvas></div></div>
+<div class="section"><h2>官網客單價趨勢</h2><div class="chart-container"><canvas id="avgTrend"></canvas></div></div>
+<div class="section"><h2>每日明細</h2>
+  <table><thead><tr><th>日期</th><th>官網 筆數</th><th>官網 營收</th><th>官網 客單價</th><th>團媽 筆數</th><th>團媽 營收</th><th>團媽 客單價</th></tr></thead>
+  <tbody id="tableBody"></tbody><tfoot id="tableFoot"></tfoot></table>
+</div>
+<div class="note">僅統計「前台購物網站 (shop)」與「獨立賣場 (one_page_store)」兩種來源<br>不含 admin_openapi (API訂單)<br>日期為 UTC 時區，已排除溢出訂單</div>
+<script>
+const days=[
+  {key:'3/21',label:'3/21 (六)',shop:{count:20,rev:26224},team:{count:1,rev:2591}},
+  {key:'3/22',label:'3/22 (日)',shop:{count:17,rev:17670},team:{count:3,rev:5821}},
+  {key:'3/23',label:'3/23 (一)',shop:{count:24,rev:24321},team:{count:6,rev:10623}},
+  {key:'3/24',label:'3/24 (二)',shop:{count:12,rev:13284},team:{count:6,rev:9699}}
+];
+const todayKey='3/24';
+const pickerEl=document.getElementById('datePicker');
+let selectedKey=todayKey;
+const allBtn=document.createElement('button');allBtn.className='date-btn';allBtn.textContent='全部';allBtn.dataset.key='all';allBtn.addEventListener('click',()=>selectDate('all'));pickerEl.appendChild(allBtn);
+days.forEach(d=>{const btn=document.createElement('button');btn.className='date-btn'+(d.key===todayKey?' today':'');btn.textContent=d.label;btn.dataset.key=d.key;btn.addEventListener('click',()=>selectDate(d.key));pickerEl.appendChild(btn);});
+const fmt=n=>'NT$'+n.toLocaleString();const fmtShort=n=>'$'+n.toLocaleString();
+function updateKPI(fd){let sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});const tot=sR+tR,totC=sC+tC;const sP=tot>0?(sR/tot*100).toFixed(1):0;const tP=tot>0?(tR/tot*100).toFixed(1):0;document.getElementById('kpiTotal').textContent=fmtShort(tot);document.getElementById('kpiTotalSub').textContent=totC+' 筆訂單';document.getElementById('kpiShop').textContent=fmtShort(sR);document.getElementById('kpiShopSub').textContent=sC+' 筆 ｜ 佔 '+sP+'%';document.getElementById('kpiTeam').textContent=fmtShort(tR);document.getElementById('kpiTeamSub').textContent=tC+' 筆 ｜ 佔 '+tP+'%';}
+function updateTable(fd,hk){const tb=document.getElementById('tableBody');const tf=document.getElementById('tableFoot');let h='',sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{const sA=d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;const tA=d.team.count>0?Math.round(d.team.rev/d.team.count):0;const c=d.key===hk?' class="selected-day"':'';h+='<tr'+c+'><td>'+d.label+'</td><td>'+d.shop.count+'</td><td>'+fmtShort(d.shop.rev)+'</td><td>'+fmtShort(sA)+'</td><td>'+d.team.count+'</td><td>'+fmtShort(d.team.rev)+'</td><td>'+fmtShort(tA)+'</td></tr>';sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});tb.innerHTML=h;if(fd.length>1){const sAT=sC>0?Math.round(sR/sC):0;const tAT=tC>0?Math.round(tR/tC):0;tf.innerHTML='<tr><td>合計</td><td>'+sC+'</td><td>'+fmtShort(sR)+'</td><td>'+fmtShort(sAT)+'</td><td>'+tC+'</td><td>'+fmtShort(tR)+'</td><td>'+fmtShort(tAT)+'</td></tr>';}else{tf.innerHTML='';}}
+const commonOpts={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:13}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'NT$'+(v/1000).toFixed(0)+'K'},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}};
+const countOpts=JSON.parse(JSON.stringify(commonOpts));countOpts.scales.y.ticks={callback:v=>v+' 筆'};countOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' 筆'}};
+const avgOpts=JSON.parse(JSON.stringify(commonOpts));avgOpts.scales.y.ticks={callback:v=>fmt(v)};avgOpts.scales.y.beginAtZero=false;
+let cR,cC,cA;
+function initCharts(fd,hk){const lb=fd.map(d=>d.label);const sr=fd.map(d=>d.shop.rev);const sc=fd.map(d=>d.shop.count);const sa=fd.map(d=>d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0);const pb=fd.map(d=>d.key===hk?'#ff5722':'#4CAF50');const pr=fd.map(d=>d.key===hk?10:6);const ds={borderColor:'#4CAF50',backgroundColor:'rgba(76,175,80,0.15)',fill:true,tension:0.3,borderWidth:3,pointBackgroundColor:pb,pointRadius:pr};if(cR)cR.destroy();if(cC)cC.destroy();if(cA)cA.destroy();cR=new Chart(document.getElementById('revTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sr,...ds}]},options:commonOpts});cC=new Chart(document.getElementById('countTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sc,...ds}]},options:countOpts});cA=new Chart(document.getElementById('avgTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sa,...ds}]},options:avgOpts});}
+function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.key===key);});const vl=document.getElementById('viewLabel');if(key==='all'){vl.textContent='顯示全部日期 (3/21 ~ 3/24)';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
+selectDate(todayKey);
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>起士公爵 官網 vs 團媽 業績儀表板 3/21-3/24</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
