@@ -11,13 +11,13 @@
   .header { text-align: center; margin-bottom: 20px; }
   .header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
   .header .subtitle { font-size: 13px; color: #888; }
-  .date-picker { display: flex; justify-content: center; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
-  .date-btn { padding: 8px 18px; border: 2px solid #ddd; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 500; color: #666; transition: all 0.2s; }
-  .date-btn:hover { border-color: #aaa; color: #333; }
-  .date-btn.active { border-color: #2196F3; background: #2196F3; color: #fff; font-weight: 700; }
-  .date-btn.today { position: relative; }
-  .date-btn.today::after { content: '今日'; position: absolute; top: -8px; right: -6px; background: #ff5722; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 8px; font-weight: 700; }
-  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+  .date-picker { display: flex; justify-content: center; margin-bottom: 22px; }
+  
+  
+  
+  
+  
+   .date-select { padding: 10px 40px 10px 16px; border: 2px solid #2196F3; border-radius: 12px; background: #fff; cursor: pointer; font-size: 15px; font-weight: 600; color: #333; appearance: none; -webkit-appearance: none; background-repeat: no-repeat; background-position: right 14px center; min-width: 220px; text-align: center; transition: all 0.2s; } .date-select:hover { border-color: #1976D2; box-shadow: 0 2px 8px rgba(33,150,243,0.2); } .date-select:focus { outline: none; border-color: #1565C0; box-shadow: 0 2px 12px rgba(33,150,243,0.3); } .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
   .kpi-card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
   .kpi-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
   .kpi-card .value { font-size: 26px; font-weight: 700; }
@@ -38,7 +38,7 @@
   tfoot td { font-weight: 700; background: #f0f7ff; }
   .view-label { text-align: center; font-size: 13px; color: #2196F3; font-weight: 600; margin-bottom: 16px; }
   .note { font-size: 11px; color: #999; text-align: center; margin-top: 16px; }
-  @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } .chart-container { height: 220px; } .date-btn { padding: 6px 12px; font-size: 12px; } }
+  @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } .chart-container { height: 220px; }  }
 </style>
 </head>
 <body>
@@ -46,7 +46,7 @@
   <h1>起士公爵 官網 vs 團媽 業績儀表板</h1>
   <div class="subtitle" id="headerSub">資料來源：SHOPLINE 後台</div>
 </div>
-<div class="date-picker" id="datePicker"></div>
+<div class="date-picker"><select class="date-select" id="dateSelect"></select></div>
 <div class="view-label" id="viewLabel"></div>
 <div class="kpi-row">
   <div class="kpi-card total"><div class="label">合計營業額</div><div class="value" style="color:#2196F3;" id="kpiTotal">-</div><div class="sub" id="kpiTotalSub">-</div></div>
@@ -76,10 +76,7 @@ const now=new Date();const autoToday=(now.getMonth()+1)+'/'+now.getDate();
 const todayKey=days.find(d=>d.key===autoToday)?autoToday:days[days.length-1].key;
 document.getElementById('headerSub').textContent='資料來源：SHOPLINE 後台 ｜ 最後更新：'+lastUpdate;
 // ===== 日期選擇器 =====
-const pickerEl=document.getElementById('datePicker');
-let selectedKey=todayKey;
-const allBtn=document.createElement('button');allBtn.className='date-btn';allBtn.textContent='全部';allBtn.dataset.key='all';allBtn.addEventListener('click',()=>selectDate('all'));pickerEl.appendChild(allBtn);
-days.forEach(d=>{const btn=document.createElement('button');btn.className='date-btn'+(d.key===todayKey?' today':'');btn.textContent=d.label;btn.dataset.key=d.key;btn.addEventListener('click',()=>selectDate(d.key));pickerEl.appendChild(btn);});
+const selectEl=document.getElementById('dateSelect'); let selectedKey=todayKey; const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent='📊 全部日期';selectEl.appendChild(allOpt); days.forEach(d=>{const opt=document.createElement('option');opt.value=d.key;opt.textContent=d.label+(d.key===todayKey?' ← 今日':'');if(d.key===todayKey)opt.selected=true;selectEl.appendChild(opt);}); selectEl.addEventListener('change',e=>selectDate(e.target.value));
 const fmt=n=>'NT$'+n.toLocaleString();const fmtShort=n=>'$'+n.toLocaleString();
 function updateKPI(fd){let sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});const tot=sR+tR,totC=sC+tC;const sP=tot>0?(sR/tot*100).toFixed(1):0;const tP=tot>0?(tR/tot*100).toFixed(1):0;document.getElementById('kpiTotal').textContent=fmtShort(tot);document.getElementById('kpiTotalSub').textContent=totC+' 筆訂單';document.getElementById('kpiShop').textContent=fmtShort(sR);document.getElementById('kpiShopSub').textContent=sC+' 筆 ｜ 佔 '+sP+'%';document.getElementById('kpiTeam').textContent=fmtShort(tR);document.getElementById('kpiTeamSub').textContent=tC+' 筆 ｜ 佔 '+tP+'%';}
 function updateTable(fd,hk){const tb=document.getElementById('tableBody');const tf=document.getElementById('tableFoot');let h='',sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{const sA=d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;const tA=d.team.count>0?Math.round(d.team.rev/d.team.count):0;const c=d.key===hk?' class="selected-day"':'';h+='<tr'+c+'><td>'+d.label+'</td><td>'+d.shop.count+'</td><td>'+fmtShort(d.shop.rev)+'</td><td>'+fmtShort(sA)+'</td><td>'+d.team.count+'</td><td>'+fmtShort(d.team.rev)+'</td><td>'+fmtShort(tA)+'</td></tr>';sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});tb.innerHTML=h;if(fd.length>1){const sAT=sC>0?Math.round(sR/sC):0;const tAT=tC>0?Math.round(tR/tC):0;tf.innerHTML='<tr><td>合計</td><td>'+sC+'</td><td>'+fmtShort(sR)+'</td><td>'+fmtShort(sAT)+'</td><td>'+tC+'</td><td>'+fmtShort(tR)+'</td><td>'+fmtShort(tAT)+'</td></tr>';}else{tf.innerHTML='';}}
@@ -88,7 +85,7 @@ const countOpts=JSON.parse(JSON.stringify(commonOpts));countOpts.scales.y.ticks=
 const avgOpts=JSON.parse(JSON.stringify(commonOpts));avgOpts.scales.y.ticks={callback:v=>fmt(v)};avgOpts.scales.y.beginAtZero=false;
 let cR,cC,cA;
 function initCharts(fd,hk){const lb=fd.map(d=>d.label);const sr=fd.map(d=>d.shop.rev);const sc=fd.map(d=>d.shop.count);const sa=fd.map(d=>d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0);const pb=fd.map(d=>d.key===hk?'#ff5722':'#4CAF50');const pr=fd.map(d=>d.key===hk?10:6);const ds={borderColor:'#4CAF50',backgroundColor:'rgba(76,175,80,0.15)',fill:true,tension:0.3,borderWidth:3,pointBackgroundColor:pb,pointRadius:pr};if(cR)cR.destroy();if(cC)cC.destroy();if(cA)cA.destroy();cR=new Chart(document.getElementById('revTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sr,...ds}]},options:commonOpts});cC=new Chart(document.getElementById('countTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sc,...ds}]},options:countOpts});cA=new Chart(document.getElementById('avgTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sa,...ds}]},options:avgOpts});}
-function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.key===key);});const vl=document.getElementById('viewLabel');const first=days[0].key,last=days[days.length-1].key;if(key==='all'){vl.textContent='顯示全部日期 ('+first+' ~ '+last+')';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
+function selectDate(key){selectedKey=key;document.getElementById('dateSelect').value=key;const vl=document.getElementById('viewLabel');const first=days[0].key,last=days[days.length-1].key;if(key==='all'){vl.textContent='顯示全部日期 ('+first+' ~ '+last+')';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
 selectDate(todayKey);
 </script>
 </body>
