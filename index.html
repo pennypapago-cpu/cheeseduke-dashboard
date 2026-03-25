@@ -44,7 +44,7 @@
 <body>
 <div class="header">
   <h1>起士公爵 官網 vs 團媽 業績儀表板</h1>
-  <div class="subtitle">資料來源：SHOPLINE 後台 ｜ 最後更新：2026/3/24 16:00</div>
+  <div class="subtitle">資料來源：SHOPLINE 後台 ｜ 最後更新：2026/3/25 16:00</div>
 </div>
 <div class="date-picker" id="datePicker"></div>
 <div class="view-label" id="viewLabel"></div>
@@ -66,9 +66,10 @@ const days=[
   {key:'3/21',label:'3/21 (六)',shop:{count:20,rev:26224},team:{count:1,rev:2591}},
   {key:'3/22',label:'3/22 (日)',shop:{count:17,rev:17670},team:{count:3,rev:5821}},
   {key:'3/23',label:'3/23 (一)',shop:{count:24,rev:24321},team:{count:6,rev:10623}},
-  {key:'3/24',label:'3/24 (二)',shop:{count:15,rev:15662},team:{count:7,rev:11013}}
+  {key:'3/24',label:'3/24 (二)',shop:{count:15,rev:15662},team:{count:7,rev:11013}},
+  {key:'3/25',label:'3/25 (三)',shop:{count:2,rev:2245},team:{count:0,rev:0}}
 ];
-const todayKey='3/24';
+const todayKey='3/25';
 const pickerEl=document.getElementById('datePicker');
 let selectedKey=todayKey;
 const allBtn=document.createElement('button');allBtn.className='date-btn';allBtn.textContent='全部';allBtn.dataset.key='all';allBtn.addEventListener('click',()=>selectDate('all'));pickerEl.appendChild(allBtn);
@@ -81,7 +82,7 @@ const countOpts=JSON.parse(JSON.stringify(commonOpts));countOpts.scales.y.ticks=
 const avgOpts=JSON.parse(JSON.stringify(commonOpts));avgOpts.scales.y.ticks={callback:v=>fmt(v)};avgOpts.scales.y.beginAtZero=false;
 let cR,cC,cA;
 function initCharts(fd,hk){const lb=fd.map(d=>d.label);const sr=fd.map(d=>d.shop.rev);const sc=fd.map(d=>d.shop.count);const sa=fd.map(d=>d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0);const pb=fd.map(d=>d.key===hk?'#ff5722':'#4CAF50');const pr=fd.map(d=>d.key===hk?10:6);const ds={borderColor:'#4CAF50',backgroundColor:'rgba(76,175,80,0.15)',fill:true,tension:0.3,borderWidth:3,pointBackgroundColor:pb,pointRadius:pr};if(cR)cR.destroy();if(cC)cC.destroy();if(cA)cA.destroy();cR=new Chart(document.getElementById('revTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sr,...ds}]},options:commonOpts});cC=new Chart(document.getElementById('countTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sc,...ds}]},options:countOpts});cA=new Chart(document.getElementById('avgTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sa,...ds}]},options:avgOpts});}
-function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.key===key);});const vl=document.getElementById('viewLabel');if(key==='all'){vl.textContent='顯示全部日期 (3/21 ~ 3/24)';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
+function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(btn=>{btn.classList.toggle('active',btn.dataset.key===key);});const vl=document.getElementById('viewLabel');if(key==='all'){vl.textContent='顯示全部日期 (3/21 ~ 3/25)';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
 selectDate(todayKey);
 </script>
 </body>
