@@ -67,10 +67,10 @@ const days=[
   {key:'3/21',label:'3/21 (六)',shop:{count:20,rev:26224},team:{count:1,rev:2591}},
   {key:'3/22',label:'3/22 (日)',shop:{count:17,rev:17670},team:{count:3,rev:5821}},
   {key:'3/23',label:'3/23 (一)',shop:{count:24,rev:24321},team:{count:6,rev:10623}},
-  {key:'3/24',label:'3/24 (二)',shop:{count:15,rev:15662},team:{count:7,rev:11013}},
+  {key:'3/24',label:'3/24 (二)',shop:{count:24,rev:22332},team:{count:11,rev:19514}},
   {key:'3/25',label:'3/25 (三)',shop:{count:2,rev:2245},team:{count:0,rev:0}}
 ];
-const lastUpdate='2026/3/25 16:00';
+const lastUpdate='2026/3/25 10:15';
 // ===== 自動判斷今日 =====
 const now=new Date();const autoToday=(now.getMonth()+1)+'/'+now.getDate();
 const todayKey=days.find(d=>d.key===autoToday)?autoToday:days[days.length-1].key;
