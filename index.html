@@ -1,92 +1,90 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>起士公爵 官網 vs 團媽 業績儀表板</title>
+<title>起士公爵 業績儀表板</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif; background: #f0f2f5; color: #333; padding: 20px; max-width: 960px; margin: 0 auto; }
-  .header { text-align: center; margin-bottom: 20px; }
-  .header h1 { font-size: 22px; color: #1a1a2e; margin-bottom: 4px; }
-  .header .subtitle { font-size: 13px; color: #888; }
-  .date-picker { display: flex; justify-content: center; margin-bottom: 22px; }
-  
-  
-  
-  
-  
-   .date-select { padding: 10px 40px 10px 16px; border: 2px solid #2196F3; border-radius: 12px; background: #fff; cursor: pointer; font-size: 15px; font-weight: 600; color: #333; appearance: none; -webkit-appearance: none; background-repeat: no-repeat; background-position: right 14px center; min-width: 220px; text-align: center; transition: all 0.2s; } .date-select:hover { border-color: #1976D2; box-shadow: 0 2px 8px rgba(33,150,243,0.2); } .date-select:focus { outline: none; border-color: #1565C0; box-shadow: 0 2px 12px rgba(33,150,243,0.3); } .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-  .kpi-card { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
-  .kpi-card .label { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .kpi-card .value { font-size: 26px; font-weight: 700; }
-  .kpi-card .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
-  .kpi-card.shop { border-top: 4px solid #4CAF50; }
-  .kpi-card.team { border-top: 4px solid #FF9800; }
-  .kpi-card.total { border-top: 4px solid #2196F3; }
-  .section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .section h2 { font-size: 16px; margin-bottom: 14px; color: #1a1a2e; }
-  .chart-container { position: relative; height: 300px; margin-bottom: 10px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #f8f9fa; padding: 8px 10px; text-align: right; font-weight: 600; color: #555; border-bottom: 2px solid #e9ecef; }
-  th:first-child { text-align: left; }
-  td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f0f0f0; }
-  td:first-child { text-align: left; font-weight: 500; }
-  tr:hover td { background: #f8f9fa; }
-  tr.selected-day td { background: #e3f2fd; font-weight: 600; }
-  tfoot td { font-weight: 700; background: #f0f7ff; }
-  .view-label { text-align: center; font-size: 13px; color: #2196F3; font-weight: 600; margin-bottom: 16px; }
-  .note { font-size: 11px; color: #999; text-align: center; margin-top: 16px; }
-  @media (max-width: 600px) { .kpi-row { grid-template-columns: 1fr; } .chart-container { height: 220px; }  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Noto Sans TC', BlinkMacSystemFont, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
+header { background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; padding: 20px 24px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+header h1 { font-size: 1.5rem; font-weight: 700; }
+header .subtitle { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+.date-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+.date-selector .label { font-size: 0.8rem; color: #666; font-weight: 600; }
+.date-btn { padding: 7px 16px; border-radius: 20px; border: 2px solid #ddd; background: white; cursor: pointer; font-size: 0.82rem; font-family: inherit; transition: all 0.2s; position: relative; color: #555; font-weight: 500; }
+.date-btn:hover { border-color: #4a90d9; color: #4a90d9; }
+.date-btn.active { background: #4a90d9; border-color: #4a90d9; color: white; box-shadow: 0 3px 10px rgba(74,144,217,0.4); }
+.date-btn.all-btn.active { background: #555; border-color: #555; }
+.today-badge { font-size: 0.62rem; background: #e74c3c; color: white; border-radius: 8px; padding: 1px 5px; position: absolute; top: -7px; right: -2px; font-weight: 700; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card { background: white; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-top: 4px solid; }
+.kpi-card.total { border-color: #4a90d9; }
+.kpi-card.shop { border-color: #27ae60; }
+.kpi-card.team { border-color: #e67e22; }
+.kpi-label { font-size: 0.78rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.kpi-value { font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+.kpi-card.total .kpi-value { color: #4a90d9; }
+.kpi-card.shop .kpi-value { color: #27ae60; }
+.kpi-card.team .kpi-value { color: #e67e22; }
+.kpi-sub { font-size: 0.78rem; color: #999; }
+.kpi-sub span { color: #555; font-weight: 600; }
+.charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.chart-card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.chart-card h3 { font-size: 0.82rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.chart-wrapper { position: relative; height: 160px; }
+.table-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow-x: auto; }
+.table-card h3 { font-size: 0.9rem; font-weight: 700; color: #444; margin-bottom: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+th { background: #f8f9fa; padding: 10px 14px; text-align: left; font-weight: 700; color: #666; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #eee; }
+th.right, td.right { text-align: right; }
+td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #444; }
+tr.highlight { background: #ebf3fb; }
+tr.highlight td { font-weight: 600; color: #1a6dbf; }
+tr:last-child td { border-bottom: none; }
+.today-row { background: #fff8f8 !important; }
+.today-row td { color: #c0392b; }
+.today-row.highlight { background: #fdeaea !important; }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>起士公爵 官網 vs 團媽 業績儀表板</h1>
-  <div class="subtitle" id="headerSub">資料來源：SHOPLINE 後台</div>
+<header>
+  <h1>&#x1F9C0; 起士公爵 業績儀表板</h1>
+  <div class="subtitle" id="updateTime">最後更新：載入中…</div>
+</header>
+<div class="container">
+  <div class="date-selector" id="dateSelector"><span class="label">日期：</span></div>
+  <div class="kpi-grid">
+    <div class="kpi-card total"><div class="kpi-label">合計營收</div><div class="kpi-value" id="kpiTotalRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiTotalCnt">0</span> 筆&emsp;客單價：<span id="kpiTotalAvg">$0</span></div></div>
+    <div class="kpi-card shop"><div class="kpi-label">&#x1F6D2; 官網（shop）</div><div class="kpi-value" id="kpiShopRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiShopCnt">0</span> 筆&emsp;佔比：<span id="kpiShopPct">0%</span></div></div>
+    <div class="kpi-card team"><div class="kpi-label">&#x1F465; 團媽（one_page）</div><div class="kpi-value" id="kpiTeamRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiTeamCnt">0</span> 筆&emsp;佔比：<span id="kpiTeamPct">0%</span></div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><h3>&#x1F4C8; 官網營業額趨勢</h3><div class="chart-wrapper"><canvas id="chartRev"></canvas></div></div>
+    <div class="chart-card"><h3>&#x1F4E6; 官網訂單數趨勢</h3><div class="chart-wrapper"><canvas id="chartCnt"></canvas></div></div>
+    <div class="chart-card"><h3>&#x1F4B0; 官網客單價趨勢</h3><div class="chart-wrapper"><canvas id="chartAvg"></canvas></div></div>
+  </div>
+  <div class="table-card">
+    <h3>&#x1F4CB; 每日明細</h3>
+    <table><thead><tr><th>日期</th><th class="right">官網營收</th><th class="right">官網訂單</th><th class="right">官網客單</th><th class="right">團媽營收</th><th class="right">團媽訂單</th><th class="right">合計</th></tr></thead><tbody id="tableBody"></tbody></table>
+  </div>
 </div>
-<div class="date-picker"><select class="date-select" id="dateSelect"></select></div>
-<div class="view-label" id="viewLabel"></div>
-<div class="kpi-row">
-  <div class="kpi-card total"><div class="label">合計營業額</div><div class="value" style="color:#2196F3;" id="kpiTotal">-</div><div class="sub" id="kpiTotalSub">-</div></div>
-  <div class="kpi-card shop"><div class="label">官網 (前台購物網站)</div><div class="value" style="color:#4CAF50;" id="kpiShop">-</div><div class="sub" id="kpiShopSub">-</div></div>
-  <div class="kpi-card team"><div class="label">團媽獨立賣場</div><div class="value" style="color:#FF9800;" id="kpiTeam">-</div><div class="sub" id="kpiTeamSub">-</div></div>
-</div>
-<div class="section"><h2>官網營業額趨勢</h2><div class="chart-container"><canvas id="revTrend"></canvas></div></div>
-<div class="section"><h2>官網訂單數趨勢</h2><div class="chart-container"><canvas id="countTrend"></canvas></div></div>
-<div class="section"><h2>官網客單價趨勢</h2><div class="chart-container"><canvas id="avgTrend"></canvas></div></div>
-<div class="section"><h2>每日明細</h2>
-  <table><thead><tr><th>日期</th><th>官網 筆數</th><th>官網 營收</th><th>官網 客單價</th><th>團媽 筆數</th><th>團媽 營收</th><th>團媽 客單價</th></tr></thead>
-  <tbody id="tableBody"></tbody><tfoot id="tableFoot"></tfoot></table>
-</div>
-<div class="note">僅統計「前台購物網站 (shop)」與「獨立賣場 (one_page_store)」兩種來源<br>不含 admin_openapi (API訂單)<br>日期為台灣時間 (UTC+8)</div>
 <script>
-// ===== 資料區（排程自動更新此區塊）=====
-const days=[
-  {key:'3/21',label:'3/21 (六)',shop:{count:20,rev:26224},team:{count:1,rev:2591}},
-  {key:'3/22',label:'3/22 (日)',shop:{count:17,rev:17670},team:{count:3,rev:5821}},
-  {key:'3/23',label:'3/23 (一)',shop:{count:24,rev:24321},team:{count:6,rev:10623}},
-  {key:'3/24',label:'3/24 (二)',shop:{count:24,rev:22332},team:{count:11,rev:19514}},
-  {key:'3/25',label:'3/25 (三)',shop:{count:2,rev:2245},team:{count:0,rev:0}}
-];
-const lastUpdate='2026/3/25 10:15';
-// ===== 自動判斷今日 =====
-const now=new Date();const autoToday=(now.getMonth()+1)+'/'+now.getDate();
-const todayKey=days.find(d=>d.key===autoToday)?autoToday:days[days.length-1].key;
-document.getElementById('headerSub').textContent='資料來源：SHOPLINE 後台 ｜ 最後更新：'+lastUpdate;
-// ===== 日期選擇器 =====
-const selectEl=document.getElementById('dateSelect'); let selectedKey=todayKey; const allOpt=document.createElement('option');allOpt.value='all';allOpt.textContent='📊 全部日期';selectEl.appendChild(allOpt); days.forEach(d=>{const opt=document.createElement('option');opt.value=d.key;opt.textContent=d.label+(d.key===todayKey?' ← 今日':'');if(d.key===todayKey)opt.selected=true;selectEl.appendChild(opt);}); selectEl.addEventListener('change',e=>selectDate(e.target.value));
-const fmt=n=>'NT$'+n.toLocaleString();const fmtShort=n=>'$'+n.toLocaleString();
-function updateKPI(fd){let sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});const tot=sR+tR,totC=sC+tC;const sP=tot>0?(sR/tot*100).toFixed(1):0;const tP=tot>0?(tR/tot*100).toFixed(1):0;document.getElementById('kpiTotal').textContent=fmtShort(tot);document.getElementById('kpiTotalSub').textContent=totC+' 筆訂單';document.getElementById('kpiShop').textContent=fmtShort(sR);document.getElementById('kpiShopSub').textContent=sC+' 筆 ｜ 佔 '+sP+'%';document.getElementById('kpiTeam').textContent=fmtShort(tR);document.getElementById('kpiTeamSub').textContent=tC+' 筆 ｜ 佔 '+tP+'%';}
-function updateTable(fd,hk){const tb=document.getElementById('tableBody');const tf=document.getElementById('tableFoot');let h='',sR=0,sC=0,tR=0,tC=0;fd.forEach(d=>{const sA=d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;const tA=d.team.count>0?Math.round(d.team.rev/d.team.count):0;const c=d.key===hk?' class="selected-day"':'';h+='<tr'+c+'><td>'+d.label+'</td><td>'+d.shop.count+'</td><td>'+fmtShort(d.shop.rev)+'</td><td>'+fmtShort(sA)+'</td><td>'+d.team.count+'</td><td>'+fmtShort(d.team.rev)+'</td><td>'+fmtShort(tA)+'</td></tr>';sR+=d.shop.rev;sC+=d.shop.count;tR+=d.team.rev;tC+=d.team.count;});tb.innerHTML=h;if(fd.length>1){const sAT=sC>0?Math.round(sR/sC):0;const tAT=tC>0?Math.round(tR/tC):0;tf.innerHTML='<tr><td>合計</td><td>'+sC+'</td><td>'+fmtShort(sR)+'</td><td>'+fmtShort(sAT)+'</td><td>'+tC+'</td><td>'+fmtShort(tR)+'</td><td>'+fmtShort(tAT)+'</td></tr>';}else{tf.innerHTML='';}}
-const commonOpts={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16,font:{size:13}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'NT$'+(v/1000).toFixed(0)+'K'},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}};
-const countOpts=JSON.parse(JSON.stringify(commonOpts));countOpts.scales.y.ticks={callback:v=>v+' 筆'};countOpts.plugins.tooltip={callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' 筆'}};
-const avgOpts=JSON.parse(JSON.stringify(commonOpts));avgOpts.scales.y.ticks={callback:v=>fmt(v)};avgOpts.scales.y.beginAtZero=false;
-let cR,cC,cA;
-function initCharts(fd,hk){const lb=fd.map(d=>d.label);const sr=fd.map(d=>d.shop.rev);const sc=fd.map(d=>d.shop.count);const sa=fd.map(d=>d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0);const pb=fd.map(d=>d.key===hk?'#ff5722':'#4CAF50');const pr=fd.map(d=>d.key===hk?10:6);const ds={borderColor:'#4CAF50',backgroundColor:'rgba(76,175,80,0.15)',fill:true,tension:0.3,borderWidth:3,pointBackgroundColor:pb,pointRadius:pr};if(cR)cR.destroy();if(cC)cC.destroy();if(cA)cA.destroy();cR=new Chart(document.getElementById('revTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sr,...ds}]},options:commonOpts});cC=new Chart(document.getElementById('countTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sc,...ds}]},options:countOpts});cA=new Chart(document.getElementById('avgTrend'),{type:'line',data:{labels:lb,datasets:[{label:'官網',data:sa,...ds}]},options:avgOpts});}
-function selectDate(key){selectedKey=key;document.getElementById('dateSelect').value=key;const vl=document.getElementById('viewLabel');const first=days[0].key,last=days[days.length-1].key;if(key==='all'){vl.textContent='顯示全部日期 ('+first+' ~ '+last+')';updateKPI(days);updateTable(days,null);initCharts(days,null);}else{const dd=days.find(d=>d.key===key);vl.textContent='顯示：'+dd.label+(key===todayKey?' (今日)':'');updateKPI([dd]);updateTable(days,key);initCharts(days,key);}}
-selectDate(todayKey);
+var days=[{key:'3/23',label:'3/23 (一)',isToday:false,shop:{count:22,rev:22643},team:{count:6,rev:10623}},{key:'3/24',label:'3/24 (二)',isToday:false,shop:{count:24,rev:22332},team:{count:11,rev:19514}},{key:'3/25',label:'3/25 (三)',isToday:false,shop:{count:26,rev:28426},team:{count:3,rev:6936}},{key:'3/26',label:'3/26 (四)',isToday:false,shop:{count:19,rev:18188},team:{count:5,rev:10672}},{key:'3/27',label:'3/27 (五)',isToday:true,shop:{count:9,rev:13395},team:{count:3,rev:8278}}];
+var todayKey='3/27';var selectedKey=todayKey;var chartRev,chartCnt,chartAvg;
+function fmt(n){return'$'+n.toLocaleString();}
+function pct(a,b){return b===0?'0%':(a/b*100).toFixed(1)+'%';}
+function getFiltered(){return selectedKey==='all'?days:days.filter(function(d){return d.key===selectedKey;});}
+function updateKPIs(){var f=getFiltered(),sr=0,sc=0,tr=0,tc=0;f.forEach(function(d){sr+=d.shop.rev;sc+=d.shop.count;tr+=d.team.rev;tc+=d.team.count;});var tot=sr+tr,totc=sc+tc,avg=sc>0?Math.round(sr/sc):0;document.getElementById('kpiTotalRev').textContent=fmt(tot);document.getElementById('kpiTotalCnt').textContent=totc;document.getElementById('kpiTotalAvg').textContent=fmt(avg);document.getElementById('kpiShopRev').textContent=fmt(sr);document.getElementById('kpiShopCnt').textContent=sc;document.getElementById('kpiShopPct').textContent=pct(sc,totc);document.getElementById('kpiTeamRev').textContent=fmt(tr);document.getElementById('kpiTeamCnt').textContent=tc;document.getElementById('kpiTeamPct').textContent=pct(tc,totc);}
+function updateCharts(){var labels=days.map(function(d){return d.label;});var revD=days.map(function(d){return d.shop.rev;});var cntD=days.map(function(d){return d.shop.count;});var avgD=days.map(function(d){return d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;});var ti=selectedKey!=='all'?days.findIndex(function(d){return d.key===selectedKey;}):-1;function pr(b,h){return days.map(function(_,i){return(ti>=0&&i===ti)?h:b;});}function pb(b,h){return days.map(function(_,i){return(ti>=0&&i===ti)?h:b;});}var co={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#999'}},y:{grid:{color:'#f0f0f0'},ticks:{font:{size:10},color:'#aaa'}}}};if(chartRev)chartRev.destroy();chartRev=new Chart(document.getElementById('chartRev'),{type:'line',data:{labels:labels,datasets:[{data:revD,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#27ae60','#e74c3c'),borderWidth:2}]},options:Object.assign({},co,{scales:Object.assign({},co.scales,{y:Object.assign({},co.scales.y,{ticks:Object.assign({},co.scales.y.ticks,{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';}})})})})});if(chartCnt)chartCnt.destroy();chartCnt=new Chart(document.getElementById('chartCnt'),{type:'line',data:{labels:labels,datasets:[{data:cntD,borderColor:'#4a90d9',backgroundColor:'rgba(74,144,217,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#4a90d9','#e74c3c'),borderWidth:2}]},options:co});if(chartAvg)chartAvg.destroy();chartAvg=new Chart(document.getElementById('chartAvg'),{type:'line',data:{labels:labels,datasets:[{data:avgD,borderColor:'#9b59b6',backgroundColor:'rgba(155,89,182,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#9b59b6','#e74c3c'),borderWidth:2}]},options:Object.assign({},co,{scales:Object.assign({},co.scales,{y:Object.assign({},co.scales.y,{ticks:Object.assign({},co.scales.y.ticks,{callback:function(v){return'$'+v.toLocaleString();}})})})})});}
+function updateTable(){var tb=document.getElementById('tableBody');tb.innerHTML='';days.forEach(function(d){var tot=d.shop.rev+d.team.rev;var avg=d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;var isSel=(selectedKey!=='all'&&d.key===selectedKey);var cls='';if(isSel)cls+=' highlight';if(d.isToday)cls+=' today-row';tb.innerHTML+='<tr class="'+cls+'"><td><strong>'+d.label+'</strong>'+(d.isToday?' <span style="font-size:0.7rem;background:#e74c3c;color:white;border-radius:8px;padding:1px 6px;font-weight:700;">今日</span>':'')+'</td><td class="right">'+fmt(d.shop.rev)+'</td><td class="right">'+d.shop.count+' 筆</td><td class="right">'+fmt(avg)+'</td><td class="right">'+fmt(d.team.rev)+'</td><td class="right">'+d.team.count+' 筆</td><td class="right"><strong>'+fmt(tot)+'</strong></td></tr>';});}
+function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(function(b){b.classList.toggle('active',b.dataset.key===key);});updateKPIs();updateCharts();updateTable();}
+function buildButtons(){var sel=document.getElementById('dateSelector');var ab=document.createElement('button');ab.className='date-btn all-btn';ab.dataset.key='all';ab.textContent='全部';ab.onclick=function(){selectDate('all');};sel.appendChild(ab);days.forEach(function(d){var btn=document.createElement('button');btn.className='date-btn';btn.dataset.key=d.key;btn.textContent=d.label;btn.onclick=function(){selectDate(d.key);};if(d.isToday){var badge=document.createElement('span');badge.className='today-badge';badge.textContent='今日';btn.appendChild(badge);}sel.appendChild(btn);});}
+var now=new Date(new Date().getTime()+8*60*60*1000);var pad=function(n){return String(n).padStart(2,'0');};
+document.getElementById('updateTime').textContent='最後更新：'+now.getUTCFullYear()+'/'+(now.getUTCMonth()+1)+'/'+now.getUTCDate()+' '+pad(now.getUTCHours())+':'+pad(now.getUTCMinutes());
+buildButtons();selectDate(todayKey);
 </script>
 </body>
 </html>
