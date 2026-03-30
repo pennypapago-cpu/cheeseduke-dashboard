@@ -6,205 +6,448 @@
 <title>起士公爵 業績儀表板</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, 'Noto Sans TC', 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; padding: 20px; }
-  .container { max-width: 960px; margin: 0 auto; }
-  h1 { text-align: center; font-size: 1.6rem; margin-bottom: 4px; }
-  .subtitle { text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 18px; }
-  .date-selector { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
-  .date-btn { padding: 8px 16px; border-radius: 20px; border: 1.5px solid #d0d0d0; background: #fff; cursor: pointer; font-size: 0.9rem; font-family: inherit; transition: all 0.2s; position: relative; }
-  .date-btn:hover { border-color: #4a90d9; color: #4a90d9; }
-  .date-btn.active { background: #4a90d9; color: #fff; border-color: #4a90d9; }
-  .date-btn .badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 0.6rem; padding: 1px 5px; border-radius: 8px; }
-  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
-  .kpi-card { background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; }
-  .kpi-card.total { border-top: 4px solid #4a90d9; }
-  .kpi-card.shop { border-top: 4px solid #27ae60; }
-  .kpi-card.team { border-top: 4px solid #e67e22; }
-  .kpi-label { font-size: 0.85rem; color: #888; margin-bottom: 6px; }
-  .kpi-value { font-size: 1.8rem; font-weight: 700; }
-  .kpi-card.total .kpi-value { color: #4a90d9; }
-  .kpi-card.shop .kpi-value { color: #27ae60; }
-  .kpi-card.team .kpi-value { color: #e67e22; }
-  .kpi-sub { font-size: 0.78rem; color: #aaa; margin-top: 4px; }
-  .charts-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
-  .chart-box { background: #fff; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .chart-box h3 { font-size: 0.85rem; color: #555; margin-bottom: 8px; text-align: center; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  th { background: #f7f8fa; padding: 10px 8px; font-size: 0.8rem; color: #888; font-weight: 600; text-align: center; }
-  td { padding: 10px 8px; text-align: center; font-size: 0.88rem; border-top: 1px solid #f0f0f0; }
-  tr.highlight { background: #e8f4fd; }
-  .tag-shop { color: #27ae60; font-weight: 600; }
-  .tag-team { color: #e67e22; font-weight: 600; }
-  @media (max-width: 700px) {
-    .kpi-row, .charts-row { grid-template-columns: 1fr; }
-    .date-selector { gap: 6px; }
-    .date-btn { padding: 6px 12px; font-size: 0.8rem; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans TC', 'PingFang TC', sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    min-height: 100vh;
   }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 20px 24px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .header .subtitle { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+  .date-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .date-btn {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 13px; font-weight: 500;
+    color: #555; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .date-btn:hover { border-color: #4299e1; color: #4299e1; }
+  .date-btn.active { border-color: #2563eb; background: #2563eb; color: white; }
+  .today-badge {
+    background: #ef4444; color: white; font-size: 10px; font-weight: 700;
+    padding: 1px 5px; border-radius: 8px;
+  }
+  .date-btn.active .today-badge { background: rgba(255,255,255,0.3); }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
+  .kpi-card {
+    background: white; border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08); border-top: 4px solid;
+  }
+  .kpi-card.blue { border-color: #3b82f6; }
+  .kpi-card.green { border-color: #22c55e; }
+  .kpi-card.orange { border-color: #f97316; }
+  .kpi-label { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 28px; font-weight: 800; margin: 6px 0 4px; color: #1a202c; }
+  .kpi-sub { font-size: 12px; color: #999; }
+  .kpi-icon { float: right; font-size: 28px; margin-top: -4px; }
+  .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+  .chart-title { font-size: 13px; font-weight: 700; color: #444; margin-bottom: 12px; }
+  .chart-container { position: relative; height: 160px; }
+  .table-card {
+    background: white; border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow-x: auto;
+  }
+  .table-title { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #f8f9fa; padding: 10px 12px; text-align: right;
+    font-weight: 700; color: #666; border-bottom: 2px solid #e5e7eb; white-space: nowrap;
+  }
+  th:first-child { text-align: left; }
+  td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #f0f0f0; color: #333; }
+  td:first-child { text-align: left; font-weight: 600; }
+  tr.selected-row td { background: #eff6ff; color: #1d4ed8; font-weight: 700; }
+  tr:hover td { background: #fafafa; }
+  .num { font-variant-numeric: tabular-nums; }
+  .channel-shop { color: #16a34a; font-weight: 600; }
+  .channel-team { color: #ea580c; font-weight: 600; }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>起士公爵 SHOPLINE 業績儀表板</h1>
-  <p class="subtitle">最後更新：2026/3/30 15:07 ｜ 官網 vs 團媽</p>
-
-  <div class="date-selector" id="dateSelector"></div>
-
-  <div class="kpi-row">
-    <div class="kpi-card total">
-      <div class="kpi-label">合計營收</div>
-      <div class="kpi-value" id="kpiTotal">-</div>
-      <div class="kpi-sub" id="kpiTotalSub"></div>
-    </div>
-    <div class="kpi-card shop">
-      <div class="kpi-label">官網（前台）</div>
-      <div class="kpi-value" id="kpiShop">-</div>
-      <div class="kpi-sub" id="kpiShopSub"></div>
-    </div>
-    <div class="kpi-card team">
-      <div class="kpi-label">團媽（獨立賣場）</div>
-      <div class="kpi-value" id="kpiTeam">-</div>
-      <div class="kpi-sub" id="kpiTeamSub"></div>
-    </div>
-  </div>
-
-  <div class="charts-row">
-    <div class="chart-box"><h3>官網營業額趨勢</h3><canvas id="chartRev"></canvas></div>
-    <div class="chart-box"><h3>官網訂單數趨勢</h3><canvas id="chartCount"></canvas></div>
-    <div class="chart-box"><h3>官網客單價趨勢</h3><canvas id="chartAvg"></canvas></div>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>日期</th>
-        <th>官網筆數</th>
-        <th>官網營收</th>
-        <th>官網客單價</th>
-        <th>團媽筆數</th>
-        <th>團媽營收</th>
-        <th>團媽客單價</th>
-        <th>合計</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+<div class="header">
+  <h1>🧀 起士公爵 業績儀表板</h1>
+  <div class="subtitle" id="lastUpdated">最後更新：2026/3/30 17:30</div>
 </div>
-
+<div class="container">
+  <div class="date-selector" id="dateBtns"></div>
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">合計營收</div>
+      <div class="kpi-value" id="kpiTotalRev">$0</div>
+      <div class="kpi-sub" id="kpiTotalCount">0 筆訂單</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-label">官網</div>
+      <div class="kpi-value" id="kpiShopRev">$0</div>
+      <div class="kpi-sub" id="kpiShopCount">0 筆 (0%)</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-label">團媽</div>
+      <div class="kpi-value" id="kpiTeamRev">$0</div>
+      <div class="kpi-sub" id="kpiTeamCount">0 筆 (0%)</div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">📈 官網營業額趨勢</div>
+      <div class="chart-container"><canvas id="chartRev"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📦 官網訂單數趨勢</div>
+      <div class="chart-container"><canvas id="chartCount"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💰 官網客單價趨勢</div>
+      <div class="chart-container"><canvas id="chartAov"></canvas></div>
+    </div>
+  </div>
+  <div class="table-card">
+    <div class="table-title">📋 每日明細</div>
+    <table>
+      <thead>
+        <tr>
+          <th>日期</th><th>官網訂單</th><th>官網營收</th><th>官網客單</th>
+          <th>團媽訂單</th><th>團媽營收</th><th>團媽客單</th><th>合計營收</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
 <script>
 const days = [
-  { key: '3/26', label: '3/26 (四)', shop: {count: 11, rev: 8610}, team: {count: 0, rev: 0} },
-  { key: '3/27', label: '3/27 (五)', shop: {count: 15, rev: 20143}, team: {count: 7, rev: 16613} },
-  { key: '3/28', label: '3/28 (六)', shop: {count: 18, rev: 23567}, team: {count: 18, rev: 30846} },
-  { key: '3/29', label: '3/29 (日)', shop: {count: 22, rev: 26671}, team: {count: 7, rev: 13582} },
-  { key: '3/30', label: '3/30 (一)', shop: {count: 40, rev: 50143}, team: {count: 6, rev: 6919} }
+  { key: '3/26', label: '3/26 (四)', shop: {count: 19, rev: 18188}, team: {count: 5, rev: 10672} },
+  { key: '3/27', label: '3/27 (五)', shop: {count: 18, rev: 25877}, team: {count: 5, rev: 12249} },
+  { key: '3/28', label: '3/28 (六)', shop: {count: 18, rev: 23158}, team: {count: 18, rev: 31349} },
+  { key: '3/29', label: '3/29 (日)', shop: {count: 30, rev: 33260}, team: {count: 8, rev: 12292} },
+  { key: '3/30', label: '3/30 (一)', shop: {count: 26, rev: 33451}, team: {count: 2, rev: 1398} },
 ];
 const todayKey = '3/30';
-
-let selectedKey = null;
-let chartRev, chartCount, chartAvg;
-
-function fmt(n) { return 'NT$' + n.toLocaleString(); }
-function pct(a, b) { return b ? Math.round(a / b * 100) + '%' : '0%'; }
-
-function buildDateSelector() {
-  const el = document.getElementById('dateSelector');
-  let html = '<button class="date-btn" onclick="selectDate(null)">全部</button>';
+const now = new Date();
+const tw = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+const pad = n => String(n).padStart(2,'0');
+document.getElementById('lastUpdated').textContent = `最後更新：${tw.getUTCFullYear()}/${tw.getUTCMonth()+1}/${tw.getUTCDate()} ${pad(tw.getUTCHours())}:${pad(tw.getUTCMinutes())}`;
+const fmt = n => n.toLocaleString('zh-TW');
+let selectedKey = todayKey;
+const btnContainer = document.getElementById('dateBtns');
+const allBtn = document.createElement('button');
+allBtn.className = 'date-btn'; allBtn.id = 'btn-all'; allBtn.textContent = '全部';
+allBtn.onclick = () => selectDate('all');
+btnContainer.appendChild(allBtn);
+days.forEach(d => {
+  const btn = document.createElement('button');
+  btn.className = 'date-btn'; btn.id = 'btn-' + d.key.replace('/', '-');
+  btn.innerHTML = d.label + (d.key === todayKey ? ' <span class="today-badge">今日</span>' : '');
+  btn.onclick = () => selectDate(d.key);
+  btnContainer.appendChild(btn);
+});
+function buildTable() {
+  const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
   days.forEach(d => {
-    const badge = d.key === todayKey ? '<span class="badge">今日</span>' : '';
-    html += '<button class="date-btn" data-key="' + d.key + '" onclick="selectDate(\'' + d.key + '\')">' + d.label + badge + '</button>';
+    const shopAov = d.shop.count > 0 ? Math.round(d.shop.rev / d.shop.count) : 0;
+    const teamAov = d.team.count > 0 ? Math.round(d.team.rev / d.team.count) : 0;
+    const totalRev = d.shop.rev + d.team.rev;
+    const tr = document.createElement('tr');
+    if (selectedKey === d.key) tr.className = 'selected-row';
+    tr.innerHTML = `<td>${d.label}</td><td class="num channel-shop">${d.shop.count} 筆</td><td class="num channel-shop">$${fmt(d.shop.rev)}</td><td class="num">$${fmt(shopAov)}</td><td class="num channel-team">${d.team.count} 筆</td><td class="num channel-team">$${fmt(d.team.rev)}</td><td class="num">$${fmt(teamAov)}</td><td class="num"><strong>$${fmt(totalRev)}</strong></td>`;
+    tbody.appendChild(tr);
   });
-  el.innerHTML = html;
 }
-
-function selectDate(key) {
-  selectedKey = key;
-  document.querySelectorAll('.date-btn').forEach(btn => {
-    const bk = btn.getAttribute('data-key');
-    btn.classList.toggle('active', key === null ? !bk : bk === key);
-  });
-  updateKPI();
-  updateCharts();
-  updateTable();
+function updateKPI(key) {
+  let shopCount = 0, shopRev = 0, teamCount = 0, teamRev = 0;
+  const filtered = key === 'all' ? days : days.filter(d => d.key === key);
+  filtered.forEach(d => { shopCount += d.shop.count; shopRev += d.shop.rev; teamCount += d.team.count; teamRev += d.team.rev; });
+  const totalCount = shopCount + teamCount; const totalRev = shopRev + teamRev;
+  const shopPct = totalCount > 0 ? Math.round(shopCount / totalCount * 100) : 0;
+  const teamPct = totalCount > 0 ? Math.round(teamCount / totalCount * 100) : 0;
+  document.getElementById('kpiTotalRev').textContent = '$' + fmt(totalRev);
+  document.getElementById('kpiTotalCount').textContent = totalCount + ' 筆訂單';
+  document.getElementById('kpiShopRev').textContent = '$' + fmt(shopRev);
+  document.getElementById('kpiShopCount').textContent = shopCount + ' 筆 (' + shopPct + '%)';
+  document.getElementById('kpiTeamRev').textContent = '$' + fmt(teamRev);
+  document.getElementById('kpiTeamCount').textContent = teamCount + ' 筆 (' + teamPct + '%)';
 }
-
-function updateKPI() {
-  let src = selectedKey ? days.filter(d => d.key === selectedKey) : days;
-  let shopRev = 0, shopCount = 0, teamRev = 0, teamCount = 0;
-  src.forEach(d => {
-    shopRev += d.shop.rev; shopCount += d.shop.count;
-    teamRev += d.team.rev; teamCount += d.team.count;
-  });
-  const total = shopRev + teamRev;
-  const totalCount = shopCount + teamCount;
-  document.getElementById('kpiTotal').textContent = fmt(total);
-  document.getElementById('kpiTotalSub').textContent = totalCount + ' 筆訂單';
-  document.getElementById('kpiShop').textContent = fmt(shopRev);
-  document.getElementById('kpiShopSub').textContent = shopCount + ' 筆（' + pct(shopCount, totalCount) + '）';
-  document.getElementById('kpiTeam').textContent = fmt(teamRev);
-  document.getElementById('kpiTeamSub').textContent = teamCount + ' 筆（' + pct(teamCount, totalCount) + '）';
-}
-
-function updateCharts() {
+let chartRev, chartCount, chartAov;
+function makeChartData(key) {
   const labels = days.map(d => d.key);
   const revData = days.map(d => d.shop.rev);
   const countData = days.map(d => d.shop.count);
-  const avgData = days.map(d => d.shop.count ? Math.round(d.shop.rev / d.shop.count) : 0);
-
-  const pointBg = labels.map(l => l === selectedKey ? '#e74c3c' : '#27ae60');
-  const pointR = labels.map(l => l === selectedKey ? 7 : 4);
-
-  const commonOpts = {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { font: { size: 10 } } }, x: { ticks: { font: { size: 10 } } } }
-  };
-
-  if (chartRev) chartRev.destroy();
-  chartRev = new Chart(document.getElementById('chartRev'), {
-    type: 'line',
-    data: { labels, datasets: [{ data: revData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.1)', fill: true, tension: 0.3, pointBackgroundColor: pointBg, pointRadius: pointR }] },
-    options: { ...commonOpts, scales: { ...commonOpts.scales, y: { ...commonOpts.scales.y, ticks: { ...commonOpts.scales.y.ticks, callback: v => (v/1000)+'k' } } } }
-  });
-
-  if (chartCount) chartCount.destroy();
-  chartCount = new Chart(document.getElementById('chartCount'), {
-    type: 'line',
-    data: { labels, datasets: [{ data: countData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.1)', fill: true, tension: 0.3, pointBackgroundColor: pointBg, pointRadius: pointR }] },
-    options: commonOpts
-  });
-
-  if (chartAvg) chartAvg.destroy();
-  chartAvg = new Chart(document.getElementById('chartAvg'), {
-    type: 'line',
-    data: { labels, datasets: [{ data: avgData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.1)', fill: true, tension: 0.3, pointBackgroundColor: pointBg, pointRadius: pointR }] },
-    options: commonOpts
-  });
+  const aovData = days.map(d => d.shop.count > 0 ? Math.round(d.shop.rev / d.shop.count) : 0);
+  const selectedIdx = key === 'all' ? -1 : days.findIndex(d => d.key === key);
+  const pointRadius = days.map((d, i) => i === selectedIdx ? 8 : 4);
+  const pointBg = days.map((d, i) => i === selectedIdx ? '#ef4444' : '#22c55e');
+  const pointBorder = days.map((d, i) => i === selectedIdx ? '#ef4444' : '#22c55e');
+  return { labels, revData, countData, aovData, pointRadius, pointBg, pointBorder };
 }
-
-function updateTable() {
-  let html = '';
+const chartOpts = (yFmt) => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => yFmt(ctx.raw) } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 }, callback: v => yFmt(v) } }
+  }
+});
+function initCharts() {
+  const { labels, revData, countData, aovData, pointRadius, pointBg, pointBorder } = makeChartData(selectedKey);
+  const lineDs = (data, color, pr, pb, pbd) => ({ data, borderColor: color, backgroundColor: color + '20', borderWidth: 2.5, pointRadius: pr, pointBackgroundColor: pb, pointBorderColor: pbd, pointBorderWidth: 2, fill: true, tension: 0.3 });
+  chartRev = new Chart(document.getElementById('chartRev'), { type: 'line', data: { labels, datasets: [lineDs(revData, '#22c55e', pointRadius, pointBg, pointBorder)] }, options: chartOpts(v => '$' + v.toLocaleString()) });
+  chartCount = new Chart(document.getElementById('chartCount'), { type: 'line', data: { labels, datasets: [lineDs(countData, '#3b82f6', pointRadius, pointBg.map(c => c === '#ef4444' ? '#ef4444' : '#3b82f6'), pointBorder.map(c => c === '#ef4444' ? '#ef4444' : '#3b82f6'))] }, options: chartOpts(v => v + ' 筆') });
+  chartAov = new Chart(document.getElementById('chartAov'), { type: 'line', data: { labels, datasets: [lineDs(aovData, '#f97316', pointRadius, pointBg.map(c => c === '#ef4444' ? '#ef4444' : '#f97316'), pointBorder.map(c => c === '#ef4444' ? '#ef4444' : '#f97316'))] }, options: chartOpts(v => '$' + v.toLocaleString()) });
+}
+function updateCharts(key) {
+  const { revData, countData, aovData, pointRadius, pointBg, pointBorder } = makeChartData(key);
+  const updateDs = (chart, data, defaultColor) => { chart.data.datasets[0].data = data; chart.data.datasets[0].pointRadius = pointRadius; chart.data.datasets[0].pointBackgroundColor = pointBg.map(c => c === '#ef4444' ? '#ef4444' : defaultColor); chart.data.datasets[0].pointBorderColor = pointBorder.map(c => c === '#ef4444' ? '#ef4444' : defaultColor); chart.update(); };
+  updateDs(chartRev, revData, '#22c55e'); updateDs(chartCount, countData, '#3b82f6'); updateDs(chartAov, aovData, '#f97316');
+}
+function selectDate(key) {
+  selectedKey = key;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  const btnId = key === 'all' ? 'btn-all' : 'btn-' + key.replace('/', '-');
+  const activeBtn = document.getElementById(btnId);
+  if (activeBtn) activeBtn.classList.add('active');
+  updateKPI(key); updateCharts(key); buildTable();
+}
+initCharts(); selectDate(todayKey);
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>起士公爵 業績儀表板</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans TC', 'PingFang TC', sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 20px 24px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .header .subtitle { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+  .date-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .date-btn {
+    padding: 7px 14px; border-radius: 20px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-size: 13px; font-weight: 500;
+    color: #555; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+    white-space: nowrap;
+  }
+  .date-btn:hover { border-color: #4299e1; color: #4299e1; }
+  .date-btn.active { border-color: #2563eb; background: #2563eb; color: white; }
+  .today-badge {
+    background: #ef4444; color: white; font-size: 10px; font-weight: 700;
+    padding: 1px 5px; border-radius: 8px;
+  }
+  .date-btn.active .today-badge { background: rgba(255,255,255,0.3); }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
+  .kpi-card {
+    background: white; border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08); border-top: 4px solid;
+  }
+  .kpi-card.blue { border-color: #3b82f6; }
+  .kpi-card.green { border-color: #22c55e; }
+  .kpi-card.orange { border-color: #f97316; }
+  .kpi-label { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 28px; font-weight: 800; margin: 6px 0 4px; color: #1a202c; }
+  .kpi-sub { font-size: 12px; color: #999; }
+  .kpi-icon { float: right; font-size: 28px; margin-top: -4px; }
+  .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 800px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+  .chart-title { font-size: 13px; font-weight: 700; color: #444; margin-bottom: 12px; }
+  .chart-container { position: relative; height: 160px; }
+  .table-card {
+    background: white; border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow-x: auto;
+  }
+  .table-title { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: #f8f9fa; padding: 10px 12px; text-align: right;
+    font-weight: 700; color: #666; border-bottom: 2px solid #e5e7eb; white-space: nowrap;
+  }
+  th:first-child { text-align: left; }
+  td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #f0f0f0; color: #333; }
+  td:first-child { text-align: left; font-weight: 600; }
+  tr.selected-row td { background: #eff6ff; color: #1d4ed8; font-weight: 700; }
+  tr:hover td { background: #fafafa; }
+  .num { font-variant-numeric: tabular-nums; }
+  .channel-shop { color: #16a34a; font-weight: 600; }
+  .channel-team { color: #ea580c; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🧀 起士公爵 業績儀表板</h1>
+  <div class="subtitle" id="lastUpdated">最後更新：2026/3/30 17:30</div>
+</div>
+<div class="container">
+  <div class="date-selector" id="dateBtns"></div>
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">合計營收</div>
+      <div class="kpi-value" id="kpiTotalRev">$0</div>
+      <div class="kpi-sub" id="kpiTotalCount">0 筆訂單</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-label">官網</div>
+      <div class="kpi-value" id="kpiShopRev">$0</div>
+      <div class="kpi-sub" id="kpiShopCount">0 筆 (0%)</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-label">團媽</div>
+      <div class="kpi-value" id="kpiTeamRev">$0</div>
+      <div class="kpi-sub" id="kpiTeamCount">0 筆 (0%)</div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">📈 官網營業額趨勢</div>
+      <div class="chart-container"><canvas id="chartRev"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📦 官網訂單數趨勢</div>
+      <div class="chart-container"><canvas id="chartCount"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💰 官網客單價趨勢</div>
+      <div class="chart-container"><canvas id="chartAov"></canvas></div>
+    </div>
+  </div>
+  <div class="table-card">
+    <div class="table-title">📋 每日明細</div>
+    <table>
+      <thead>
+        <tr>
+          <th>日期</th><th>官網訂單</th><th>官網營收</th><th>官網客單</th>
+          <th>團媽訂單</th><th>團媽營收</th><th>團媽客單</th><th>合計營收</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const days = [
+  { key: '3/26', label: '3/26 (四)', shop: {count: 19, rev: 18188}, team: {count: 5, rev: 10672} },
+  { key: '3/27', label: '3/27 (五)', shop: {count: 18, rev: 25877}, team: {count: 5, rev: 12249} },
+  { key: '3/28', label: '3/28 (六)', shop: {count: 18, rev: 23158}, team: {count: 18, rev: 31349} },
+  { key: '3/29', label: '3/29 (日)', shop: {count: 30, rev: 33260}, team: {count: 8, rev: 12292} },
+  { key: '3/30', label: '3/30 (一)', shop: {count: 26, rev: 33451}, team: {count: 2, rev: 1398} },
+];
+const todayKey = '3/30';
+const now = new Date();
+const tw = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+const pad = n => String(n).padStart(2,'0');
+document.getElementById('lastUpdated').textContent = `最後更新：${tw.getUTCFullYear()}/${tw.getUTCMonth()+1}/${tw.getUTCDate()} ${pad(tw.getUTCHours())}:${pad(tw.getUTCMinutes())}`;
+const fmt = n => n.toLocaleString('zh-TW');
+let selectedKey = todayKey;
+const btnContainer = document.getElementById('dateBtns');
+const allBtn = document.createElement('button');
+allBtn.className = 'date-btn'; allBtn.id = 'btn-all'; allBtn.textContent = '全部';
+allBtn.onclick = () => selectDate('all');
+btnContainer.appendChild(allBtn);
+days.forEach(d => {
+  const btn = document.createElement('button');
+  btn.className = 'date-btn'; btn.id = 'btn-' + d.key.replace('/', '-');
+  btn.innerHTML = d.label + (d.key === todayKey ? ' <span class="today-badge">今日</span>' : '');
+  btn.onclick = () => selectDate(d.key);
+  btnContainer.appendChild(btn);
+});
+function buildTable() {
+  const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
   days.forEach(d => {
-    const total = d.shop.rev + d.team.rev;
-    const hl = d.key === selectedKey ? ' class="highlight"' : '';
-    const shopAvg = d.shop.count ? Math.round(d.shop.rev / d.shop.count) : 0;
-    const teamAvg = d.team.count ? Math.round(d.team.rev / d.team.count) : 0;
-    html += '<tr' + hl + '>';
-    html += '<td><strong>' + d.label + '</strong></td>';
-    html += '<td class="tag-shop">' + d.shop.count + '</td>';
-    html += '<td class="tag-shop">' + fmt(d.shop.rev) + '</td>';
-    html += '<td class="tag-shop">' + fmt(shopAvg) + '</td>';
-    html += '<td class="tag-team">' + d.team.count + '</td>';
-    html += '<td class="tag-team">' + fmt(d.team.rev) + '</td>';
-    html += '<td class="tag-team">' + fmt(teamAvg) + '</td>';
-    html += '<td><strong>' + fmt(total) + '</strong></td>';
-    html += '</tr>';
+    const shopAov = d.shop.count > 0 ? Math.round(d.shop.rev / d.shop.count) : 0;
+    const teamAov = d.team.count > 0 ? Math.round(d.team.rev / d.team.count) : 0;
+    const totalRev = d.shop.rev + d.team.rev;
+    const tr = document.createElement('tr');
+    if (selectedKey === d.key) tr.className = 'selected-row';
+    tr.innerHTML = `<td>${d.label}</td><td class="num channel-shop">${d.shop.count} 筆</td><td class="num channel-shop">$${fmt(d.shop.rev)}</td><td class="num">$${fmt(shopAov)}</td><td class="num channel-team">${d.team.count} 筆</td><td class="num channel-team">$${fmt(d.team.rev)}</td><td class="num">$${fmt(teamAov)}</td><td class="num"><strong>$${fmt(totalRev)}</strong></td>`;
+    tbody.appendChild(tr);
   });
-  document.getElementById('tableBody').innerHTML = html;
 }
-
-buildDateSelector();
-selectDate(todayKey);
+function updateKPI(key) {
+  let shopCount = 0, shopRev = 0, teamCount = 0, teamRev = 0;
+  const filtered = key === 'all' ? days : days.filter(d => d.key === key);
+  filtered.forEach(d => { shopCount += d.shop.count; shopRev += d.shop.rev; teamCount += d.team.count; teamRev += d.team.rev; });
+  const totalCount = shopCount + teamCount; const totalRev = shopRev + teamRev;
+  const shopPct = totalCount > 0 ? Math.round(shopCount / totalCount * 100) : 0;
+  const teamPct = totalCount > 0 ? Math.round(teamCount / totalCount * 100) : 0;
+  document.getElementById('kpiTotalRev').textContent = '$' + fmt(totalRev);
+  document.getElementById('kpiTotalCount').textContent = totalCount + ' 筆訂單';
+  document.getElementById('kpiShopRev').textContent = '$' + fmt(shopRev);
+  document.getElementById('kpiShopCount').textContent = shopCount + ' 筆 (' + shopPct + '%)';
+  document.getElementById('kpiTeamRev').textContent = '$' + fmt(teamRev);
+  document.getElementById('kpiTeamCount').textContent = teamCount + ' 筆 (' + teamPct + '%)';
+}
+let chartRev, chartCount, chartAov;
+function makeChartData(key) {
+  const labels = days.map(d => d.key);
+  const revData = days.map(d => d.shop.rev);
+  const countData = days.map(d => d.shop.count);
+  const aovData = days.map(d => d.shop.count > 0 ? Math.round(d.shop.rev / d.shop.count) : 0);
+  const selectedIdx = key === 'all' ? -1 : days.findIndex(d => d.key === key);
+  const pointRadius = days.map((d, i) => i === selectedIdx ? 8 : 4);
+  const pointBg = days.map((d, i) => i === selectedIdx ? '#ef4444' : '#22c55e');
+  const pointBorder = days.map((d, i) => i === selectedIdx ? '#ef4444' : '#22c55e');
+  return { labels, revData, countData, aovData, pointRadius, pointBg, pointBorder };
+}
+const chartOpts = (yFmt) => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => yFmt(ctx.raw) } } },
+  scales: {
+    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 }, callback: v => yFmt(v) } }
+  }
+});
+function initCharts() {
+  const { labels, revData, countData, aovData, pointRadius, pointBg, pointBorder } = makeChartData(selectedKey);
+  const lineDs = (data, color, pr, pb, pbd) => ({ data, borderColor: color, backgroundColor: color + '20', borderWidth: 2.5, pointRadius: pr, pointBackgroundColor: pb, pointBorderColor: pbd, pointBorderWidth: 2, fill: true, tension: 0.3 });
+  chartRev = new Chart(document.getElementById('chartRev'), { type: 'line', data: { labels, datasets: [lineDs(revData, '#22c55e', pointRadius, pointBg, pointBorder)] }, options: chartOpts(v => '$' + v.toLocaleString()) });
+  chartCount = new Chart(document.getElementById('chartCount'), { type: 'line', data: { labels, datasets: [lineDs(countData, '#3b82f6', pointRadius, pointBg.map(c => c === '#ef4444' ? '#ef4444' : '#3b82f6'), pointBorder.map(c => c === '#ef4444' ? '#ef4444' : '#3b82f6'))] }, options: chartOpts(v => v + ' 筆') });
+  chartAov = new Chart(document.getElementById('chartAov'), { type: 'line', data: { labels, datasets: [lineDs(aovData, '#f97316', pointRadius, pointBg.map(c => c === '#ef4444' ? '#ef4444' : '#f97316'), pointBorder.map(c => c === '#ef4444' ? '#ef4444' : '#f97316'))] }, options: chartOpts(v => '$' + v.toLocaleString()) });
+}
+function updateCharts(key) {
+  const { revData, countData, aovData, pointRadius, pointBg, pointBorder } = makeChartData(key);
+  const updateDs = (chart, data, defaultColor) => { chart.data.datasets[0].data = data; chart.data.datasets[0].pointRadius = pointRadius; chart.data.datasets[0].pointBackgroundColor = pointBg.map(c => c === '#ef4444' ? '#ef4444' : defaultColor); chart.data.datasets[0].pointBorderColor = pointBorder.map(c => c === '#ef4444' ? '#ef4444' : defaultColor); chart.update(); };
+  updateDs(chartRev, revData, '#22c55e'); updateDs(chartCount, countData, '#3b82f6'); updateDs(chartAov, aovData, '#f97316');
+}
+function selectDate(key) {
+  selectedKey = key;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  const btnId = key === 'all' ? 'btn-all' : 'btn-' + key.replace('/', '-');
+  const activeBtn = document.getElementById(btnId);
+  if (activeBtn) activeBtn.classList.add('active');
+  updateKPI(key); updateCharts(key); buildTable();
+}
+initCharts(); selectDate(todayKey);
 </script>
 </body>
 </html>
