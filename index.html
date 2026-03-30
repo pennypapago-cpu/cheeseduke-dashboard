@@ -6,85 +6,180 @@
 <title>起士公爵 業績儀表板</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, 'Noto Sans TC', BlinkMacSystemFont, sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; }
-header { background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; padding: 20px 24px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-header h1 { font-size: 1.5rem; font-weight: 700; }
-header .subtitle { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 4px; }
-.container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
-.date-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
-.date-selector .label { font-size: 0.8rem; color: #666; font-weight: 600; }
-.date-btn { padding: 7px 16px; border-radius: 20px; border: 2px solid #ddd; background: white; cursor: pointer; font-size: 0.82rem; font-family: inherit; transition: all 0.2s; position: relative; color: #555; font-weight: 500; }
-.date-btn:hover { border-color: #4a90d9; color: #4a90d9; }
-.date-btn.active { background: #4a90d9; border-color: #4a90d9; color: white; box-shadow: 0 3px 10px rgba(74,144,217,0.4); }
-.date-btn.all-btn.active { background: #555; border-color: #555; }
-.today-badge { font-size: 0.62rem; background: #e74c3c; color: white; border-radius: 8px; padding: 1px 5px; position: absolute; top: -7px; right: -2px; font-weight: 700; }
-.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
-.kpi-card { background: white; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-top: 4px solid; }
-.kpi-card.total { border-color: #4a90d9; }
-.kpi-card.shop { border-color: #27ae60; }
-.kpi-card.team { border-color: #e67e22; }
-.kpi-label { font-size: 0.78rem; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.kpi-value { font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
-.kpi-card.total .kpi-value { color: #4a90d9; }
-.kpi-card.shop .kpi-value { color: #27ae60; }
-.kpi-card.team .kpi-value { color: #e67e22; }
-.kpi-sub { font-size: 0.78rem; color: #999; }
-.kpi-sub span { color: #555; font-weight: 600; }
-.charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
-.chart-card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-.chart-card h3 { font-size: 0.82rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-.chart-wrapper { position: relative; height: 160px; }
-.table-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); overflow-x: auto; }
-.table-card h3 { font-size: 0.9rem; font-weight: 700; color: #444; margin-bottom: 14px; }
-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-th { background: #f8f9fa; padding: 10px 14px; text-align: left; font-weight: 700; color: #666; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #eee; }
-th.right, td.right { text-align: right; }
-td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; color: #444; }
-tr.highlight { background: #ebf3fb; }
-tr.highlight td { font-weight: 600; color: #1a6dbf; }
-tr:last-child td { border-bottom: none; }
-.today-row { background: #fff8f8 !important; }
-.today-row td { color: #c0392b; }
-.today-row.highlight { background: #fdeaea !important; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Noto Sans TC', 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; padding: 20px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { text-align: center; font-size: 24px; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 18px; }
+  .date-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+  .date-btn { padding: 8px 16px; border-radius: 20px; border: 1.5px solid #ddd; background: #fff; cursor: pointer; font-size: 14px; font-family: inherit; transition: all .2s; position: relative; }
+  .date-btn:hover { border-color: #4a90d9; color: #4a90d9; }
+  .date-btn.active { background: #4a90d9; color: #fff; border-color: #4a90d9; }
+  .date-btn .badge { position: absolute; top: -6px; right: -6px; background: #e74c3c; color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 8px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .kpi-card { background: #fff; border-radius: 12px; padding: 18px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .kpi-card .label { font-size: 13px; color: #888; margin-bottom: 6px; }
+  .kpi-card .value { font-size: 28px; font-weight: 700; }
+  .kpi-card .sub { font-size: 12px; color: #999; margin-top: 4px; }
+  .kpi-total .value { color: #4a90d9; }
+  .kpi-shop .value { color: #27ae60; }
+  .kpi-team .value { color: #e67e22; }
+  .chart-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .chart-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .chart-card h3 { font-size: 14px; color: #555; margin-bottom: 10px; text-align: center; }
+  .chart-card canvas { width: 100% !important; height: 180px !important; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  th { background: #f7f8fa; padding: 10px 12px; font-size: 13px; color: #666; text-align: center; border-bottom: 1px solid #eee; }
+  td { padding: 10px 12px; text-align: center; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+  tr.highlight { background: #e8f0fe; }
+  .table-wrapper { border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+  @media (max-width: 700px) {
+    .kpi-row, .chart-row { grid-template-columns: 1fr; }
+    .date-btn { padding: 6px 12px; font-size: 13px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>&#x1F9C0; 起士公爵 業績儀表板</h1>
-  <div class="subtitle" id="updateTime">最後更新：載入中…</div>
-</header>
 <div class="container">
-  <div class="date-selector" id="dateSelector"><span class="label">日期：</span></div>
-  <div class="kpi-grid">
-    <div class="kpi-card total"><div class="kpi-label">合計營收</div><div class="kpi-value" id="kpiTotalRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiTotalCnt">0</span> 筆&emsp;客單價：<span id="kpiTotalAvg">$0</span></div></div>
-    <div class="kpi-card shop"><div class="kpi-label">&#x1F6D2; 官網（shop）</div><div class="kpi-value" id="kpiShopRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiShopCnt">0</span> 筆&emsp;佔比：<span id="kpiShopPct">0%</span></div></div>
-    <div class="kpi-card team"><div class="kpi-label">&#x1F465; 團媽（one_page）</div><div class="kpi-value" id="kpiTeamRev">$0</div><div class="kpi-sub">訂單數：<span id="kpiTeamCnt">0</span> 筆&emsp;佔比：<span id="kpiTeamPct">0%</span></div></div>
+  <h1>🧀 起士公爵 業績儀表板</h1>
+  <div class="subtitle">官網 vs 團媽 ｜ 最後更新：2026/3/30 14:06</div>
+  <div class="date-bar" id="dateBar"></div>
+  <div class="kpi-row">
+    <div class="kpi-card kpi-total">
+      <div class="label">合計營收</div>
+      <div class="value" id="kpiTotal">$0</div>
+      <div class="sub" id="kpiTotalSub">0 筆</div>
+    </div>
+    <div class="kpi-card kpi-shop">
+      <div class="label">官網</div>
+      <div class="value" id="kpiShop">$0</div>
+      <div class="sub" id="kpiShopSub">0 筆</div>
+    </div>
+    <div class="kpi-card kpi-team">
+      <div class="label">團媽</div>
+      <div class="value" id="kpiTeam">$0</div>
+      <div class="sub" id="kpiTeamSub">0 筆</div>
+    </div>
   </div>
-  <div class="charts-grid">
-    <div class="chart-card"><h3>&#x1F4C8; 官網營業額趨勢</h3><div class="chart-wrapper"><canvas id="chartRev"></canvas></div></div>
-    <div class="chart-card"><h3>&#x1F4E6; 官網訂單數趨勢</h3><div class="chart-wrapper"><canvas id="chartCnt"></canvas></div></div>
-    <div class="chart-card"><h3>&#x1F4B0; 官網客單價趨勢</h3><div class="chart-wrapper"><canvas id="chartAvg"></canvas></div></div>
+  <div class="chart-row">
+    <div class="chart-card"><h3>官網營業額</h3><canvas id="chartRev"></canvas></div>
+    <div class="chart-card"><h3>官網訂單數</h3><canvas id="chartCount"></canvas></div>
+    <div class="chart-card"><h3>官網客單價</h3><canvas id="chartAvg"></canvas></div>
   </div>
-  <div class="table-card">
-    <h3>&#x1F4CB; 每日明細</h3>
-    <table><thead><tr><th>日期</th><th class="right">官網營收</th><th class="right">官網訂單</th><th class="right">官網客單</th><th class="right">團媽營收</th><th class="right">團媽訂單</th><th class="right">合計</th></tr></thead><tbody id="tableBody"></tbody></table>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>日期</th><th>官網筆數</th><th>官網營收</th><th>團媽筆數</th><th>團媽營收</th><th>合計營收</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
 </div>
 <script>
-var days=[{key:'3/23',label:'3/23 (一)',isToday:false,shop:{count:22,rev:22643},team:{count:6,rev:10623}},{key:'3/24',label:'3/24 (二)',isToday:false,shop:{count:24,rev:22332},team:{count:11,rev:19514}},{key:'3/25',label:'3/25 (三)',isToday:false,shop:{count:26,rev:28426},team:{count:3,rev:6936}},{key:'3/26',label:'3/26 (四)',isToday:false,shop:{count:19,rev:18188},team:{count:5,rev:10672}},{key:'3/27',label:'3/27 (五)',isToday:true,shop:{count:9,rev:13395},team:{count:3,rev:8278}}];
-var todayKey='3/27';var selectedKey=todayKey;var chartRev,chartCnt,chartAvg;
-function fmt(n){return'$'+n.toLocaleString();}
-function pct(a,b){return b===0?'0%':(a/b*100).toFixed(1)+'%';}
-function getFiltered(){return selectedKey==='all'?days:days.filter(function(d){return d.key===selectedKey;});}
-function updateKPIs(){var f=getFiltered(),sr=0,sc=0,tr=0,tc=0;f.forEach(function(d){sr+=d.shop.rev;sc+=d.shop.count;tr+=d.team.rev;tc+=d.team.count;});var tot=sr+tr,totc=sc+tc,avg=sc>0?Math.round(sr/sc):0;document.getElementById('kpiTotalRev').textContent=fmt(tot);document.getElementById('kpiTotalCnt').textContent=totc;document.getElementById('kpiTotalAvg').textContent=fmt(avg);document.getElementById('kpiShopRev').textContent=fmt(sr);document.getElementById('kpiShopCnt').textContent=sc;document.getElementById('kpiShopPct').textContent=pct(sc,totc);document.getElementById('kpiTeamRev').textContent=fmt(tr);document.getElementById('kpiTeamCnt').textContent=tc;document.getElementById('kpiTeamPct').textContent=pct(tc,totc);}
-function updateCharts(){var labels=days.map(function(d){return d.label;});var revD=days.map(function(d){return d.shop.rev;});var cntD=days.map(function(d){return d.shop.count;});var avgD=days.map(function(d){return d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;});var ti=selectedKey!=='all'?days.findIndex(function(d){return d.key===selectedKey;}):-1;function pr(b,h){return days.map(function(_,i){return(ti>=0&&i===ti)?h:b;});}function pb(b,h){return days.map(function(_,i){return(ti>=0&&i===ti)?h:b;});}var co={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:'#999'}},y:{grid:{color:'#f0f0f0'},ticks:{font:{size:10},color:'#aaa'}}}};if(chartRev)chartRev.destroy();chartRev=new Chart(document.getElementById('chartRev'),{type:'line',data:{labels:labels,datasets:[{data:revD,borderColor:'#27ae60',backgroundColor:'rgba(39,174,96,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#27ae60','#e74c3c'),borderWidth:2}]},options:Object.assign({},co,{scales:Object.assign({},co.scales,{y:Object.assign({},co.scales.y,{ticks:Object.assign({},co.scales.y.ticks,{callback:function(v){return'$'+(v/1000).toFixed(0)+'K';}})})})})});if(chartCnt)chartCnt.destroy();chartCnt=new Chart(document.getElementById('chartCnt'),{type:'line',data:{labels:labels,datasets:[{data:cntD,borderColor:'#4a90d9',backgroundColor:'rgba(74,144,217,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#4a90d9','#e74c3c'),borderWidth:2}]},options:co});if(chartAvg)chartAvg.destroy();chartAvg=new Chart(document.getElementById('chartAvg'),{type:'line',data:{labels:labels,datasets:[{data:avgD,borderColor:'#9b59b6',backgroundColor:'rgba(155,89,182,0.08)',fill:true,tension:0.3,pointRadius:pr(4,9),pointBackgroundColor:pb('#9b59b6','#e74c3c'),borderWidth:2}]},options:Object.assign({},co,{scales:Object.assign({},co.scales,{y:Object.assign({},co.scales.y,{ticks:Object.assign({},co.scales.y.ticks,{callback:function(v){return'$'+v.toLocaleString();}})})})})});}
-function updateTable(){var tb=document.getElementById('tableBody');tb.innerHTML='';days.forEach(function(d){var tot=d.shop.rev+d.team.rev;var avg=d.shop.count>0?Math.round(d.shop.rev/d.shop.count):0;var isSel=(selectedKey!=='all'&&d.key===selectedKey);var cls='';if(isSel)cls+=' highlight';if(d.isToday)cls+=' today-row';tb.innerHTML+='<tr class="'+cls+'"><td><strong>'+d.label+'</strong>'+(d.isToday?' <span style="font-size:0.7rem;background:#e74c3c;color:white;border-radius:8px;padding:1px 6px;font-weight:700;">今日</span>':'')+'</td><td class="right">'+fmt(d.shop.rev)+'</td><td class="right">'+d.shop.count+' 筆</td><td class="right">'+fmt(avg)+'</td><td class="right">'+fmt(d.team.rev)+'</td><td class="right">'+d.team.count+' 筆</td><td class="right"><strong>'+fmt(tot)+'</strong></td></tr>';});}
-function selectDate(key){selectedKey=key;document.querySelectorAll('.date-btn').forEach(function(b){b.classList.toggle('active',b.dataset.key===key);});updateKPIs();updateCharts();updateTable();}
-function buildButtons(){var sel=document.getElementById('dateSelector');var ab=document.createElement('button');ab.className='date-btn all-btn';ab.dataset.key='all';ab.textContent='全部';ab.onclick=function(){selectDate('all');};sel.appendChild(ab);days.forEach(function(d){var btn=document.createElement('button');btn.className='date-btn';btn.dataset.key=d.key;btn.textContent=d.label;btn.onclick=function(){selectDate(d.key);};if(d.isToday){var badge=document.createElement('span');badge.className='today-badge';badge.textContent='今日';btn.appendChild(badge);}sel.appendChild(btn);});}
-var now=new Date(new Date().getTime()+8*60*60*1000);var pad=function(n){return String(n).padStart(2,'0');};
-document.getElementById('updateTime').textContent='最後更新：'+now.getUTCFullYear()+'/'+(now.getUTCMonth()+1)+'/'+now.getUTCDate()+' '+pad(now.getUTCHours())+':'+pad(now.getUTCMinutes());
-buildButtons();selectDate(todayKey);
+const days = [
+  { key: '3/26', label: '3/26 (四)', shop: {count: 19, rev: 18188}, team: {count: 5, rev: 10672} },
+  { key: '3/27', label: '3/27 (五)', shop: {count: 18, rev: 25877}, team: {count: 5, rev: 12249} },
+  { key: '3/28', label: '3/28 (六)', shop: {count: 18, rev: 23158}, team: {count: 18, rev: 31349} },
+  { key: '3/29', label: '3/29 (日)', shop: {count: 30, rev: 33260}, team: {count: 8, rev: 12292} },
+  { key: '3/30', label: '3/30 (一)', shop: {count: 19, rev: 26651}, team: {count: 2, rev: 1398} }
+];
+const todayKey = '3/30';
+let selectedKey = null;
+let chartRev, chartCount, chartAvg;
+
+function fmt(n) { return '$' + n.toLocaleString(); }
+
+function buildDateBar() {
+  const bar = document.getElementById('dateBar');
+  let html = '<button class="date-btn" onclick="selectDate(null)">全部</button>';
+  days.forEach(d => {
+    const isToday = d.key === todayKey;
+    html += '<button class="date-btn" data-key="' + d.key + '" onclick="selectDate(\'' + d.key + '\')">' + d.label + (isToday ? '<span class="badge">今日</span>' : '') + '</button>';
+  });
+  bar.innerHTML = html;
+}
+
+function selectDate(key) {
+  selectedKey = key;
+  document.querySelectorAll('.date-btn').forEach(btn => {
+    const bk = btn.dataset.key || null;
+    btn.classList.toggle('active', bk === key);
+  });
+  updateKPI();
+  updateCharts();
+  updateTable();
+}
+
+function updateKPI() {
+  let data = selectedKey ? days.filter(d => d.key === selectedKey) : days;
+  let shopRev = 0, shopCount = 0, teamRev = 0, teamCount = 0;
+  data.forEach(d => {
+    shopRev += d.shop.rev; shopCount += d.shop.count;
+    teamRev += d.team.rev; teamCount += d.team.count;
+  });
+  const total = shopRev + teamRev;
+  const totalCount = shopCount + teamCount;
+  document.getElementById('kpiTotal').textContent = fmt(total);
+  document.getElementById('kpiTotalSub').textContent = totalCount + ' 筆';
+  document.getElementById('kpiShop').textContent = fmt(shopRev);
+  document.getElementById('kpiShopSub').textContent = shopCount + ' 筆（' + (totalCount ? Math.round(shopCount/totalCount*100) : 0) + '%）';
+  document.getElementById('kpiTeam').textContent = fmt(teamRev);
+  document.getElementById('kpiTeamSub').textContent = teamCount + ' 筆（' + (totalCount ? Math.round(teamCount/totalCount*100) : 0) + '%）';
+}
+
+function updateCharts() {
+  const labels = days.map(d => d.key);
+  const revData = days.map(d => d.shop.rev);
+  const countData = days.map(d => d.shop.count);
+  const avgData = days.map(d => d.shop.count > 0 ? Math.round(d.shop.rev / d.shop.count) : 0);
+
+  const pointRadius = days.map(d => d.key === selectedKey ? 7 : 4);
+  const pointBg = days.map(d => d.key === selectedKey ? '#e74c3c' : '#27ae60');
+  const pointBorder = days.map(d => d.key === selectedKey ? '#e74c3c' : '#27ae60');
+
+  const baseOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { font: { size: 11 } } } }
+  };
+
+  if (chartRev) chartRev.destroy();
+  chartRev = new Chart(document.getElementById('chartRev'), {
+    type: 'line',
+    data: { labels, datasets: [{ data: revData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,.1)', fill: true, tension: .3, pointRadius, pointBackgroundColor: pointBg, pointBorderColor: pointBorder }] },
+    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, callback: v => '$' + (v/1000).toFixed(0) + 'k' } } } }
+  });
+
+  if (chartCount) chartCount.destroy();
+  chartCount = new Chart(document.getElementById('chartCount'), {
+    type: 'line',
+    data: { labels, datasets: [{ data: countData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,.1)', fill: true, tension: .3, pointRadius, pointBackgroundColor: pointBg, pointBorderColor: pointBorder }] },
+    options: baseOpts
+  });
+
+  if (chartAvg) chartAvg.destroy();
+  chartAvg = new Chart(document.getElementById('chartAvg'), {
+    type: 'line',
+    data: { labels, datasets: [{ data: avgData, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,.1)', fill: true, tension: .3, pointRadius, pointBackgroundColor: pointBg, pointBorderColor: pointBorder }] },
+    options: { ...baseOpts, scales: { ...baseOpts.scales, y: { ...baseOpts.scales.y, ticks: { ...baseOpts.scales.y.ticks, callback: v => '$' + v.toLocaleString() } } } }
+  });
+}
+
+function updateTable() {
+  const tbody = document.getElementById('tableBody');
+  let html = '';
+  days.forEach(d => {
+    const hl = d.key === selectedKey ? ' class="highlight"' : '';
+    const total = d.shop.rev + d.team.rev;
+    html += '<tr' + hl + '><td>' + d.label + '</td><td>' + d.shop.count + '</td><td>' + fmt(d.shop.rev) + '</td><td>' + d.team.count + '</td><td>' + fmt(d.team.rev) + '</td><td><strong>' + fmt(total) + '</strong></td></tr>';
+  });
+  let ts = {sc:0,sr:0,tc:0,tr:0};
+  days.forEach(d => { ts.sc+=d.shop.count; ts.sr+=d.shop.rev; ts.tc+=d.team.count; ts.tr+=d.team.rev; });
+  html += '<tr style="background:#f7f8fa;font-weight:600"><td>合計</td><td>' + ts.sc + '</td><td>' + fmt(ts.sr) + '</td><td>' + ts.tc + '</td><td>' + fmt(ts.tr) + '</td><td><strong>' + fmt(ts.sr+ts.tr) + '</strong></td></tr>';
+  tbody.innerHTML = html;
+}
+
+buildDateBar();
+selectDate(todayKey);
 </script>
 </body>
 </html>
